@@ -5,6 +5,7 @@
  */
 package netwrokclient;
 
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -26,6 +27,7 @@ public class UsersPane extends VBox {
         lbHeader = new Label("Users");
         lvUsers = new ListView<>();
         lvUsers.setMaxWidth(150);
+        lvUsers.setItems(FXCollections.observableArrayList());
         btnAddToGroup = new Button("Add to Group");
         getChildren().addAll(lbHeader, lvUsers, btnAddToGroup);
         setPadding(new Insets(5));

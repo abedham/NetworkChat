@@ -5,6 +5,7 @@
  */
 package netwrokclient;
 
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -17,26 +18,27 @@ import javafx.scene.layout.VBox;
  * @author Abed
  */
 public class GroupsPane extends VBox {
-    
+
     private Label lbHeader;
     private ListView<String> lvGroups;
-    
+
     public GroupsPane() {
         lbHeader = new Label("Groups");
         lvGroups = new ListView<>();
+        lvGroups.setItems(FXCollections.observableArrayList());
         lvGroups.setMaxWidth(150);
         getChildren().addAll(lbHeader, lvGroups);
         setPadding(new Insets(5));
         setAlignment(Pos.CENTER);
         setSpacing(2);
     }
-    
+
     public Label getLbHeader() {
         return lbHeader;
     }
-    
-    public ListView<String> getLvUsers() {
+
+    public ListView<String> getLvGroups() {
         return lvGroups;
     }
-    
+
 }

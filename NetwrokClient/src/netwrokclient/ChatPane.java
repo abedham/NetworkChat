@@ -13,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -38,7 +39,7 @@ public class ChatPane extends VBox {
     }
 
     public void reciveFile(String path, String from) {
-        Label lbFrom = new Label(from);
+        Label lbFrom = new Label(from + ": ");
         Text text = new Text(path);
         text.setFill(Color.BLUE);
         text.setOnMouseEntered(e -> {
@@ -58,22 +59,22 @@ public class ChatPane extends VBox {
             }
         });
         text.setWrappingWidth(200);
-        VBox vBox = new VBox(2, lbFrom, text);
-        vbMessages.getChildren().add(vBox);
-        vBox.setAlignment(Pos.BASELINE_RIGHT);
+        HBox hBox = new HBox(2, lbFrom, text);
+        vbMessages.getChildren().add(hBox);
+        hBox.setAlignment(Pos.BASELINE_RIGHT);
     }
 
     public void reciveText(String msg, String from) {
-        Label lbFrom = new Label(from);
+        Label lbFrom = new Label(from + ": ");
         Text text = new Text(msg);
         text.setWrappingWidth(200);
-        VBox vBox = new VBox(2, lbFrom, text);
-        vbMessages.getChildren().add(vBox);
-        vBox.setAlignment(Pos.BASELINE_RIGHT);
+        HBox hBox = new HBox(2, lbFrom, text);
+        vbMessages.getChildren().add(hBox);
+        hBox.setAlignment(Pos.BASELINE_RIGHT);
     }
 
     public void reciveImage(String path, String from) {
-        Label lbFrom = new Label(from);
+        Label lbFrom = new Label(from + ": ");
         ImageView image = new ImageView(path);
         image.setOnMouseClicked(e -> {
             if (e.getClickCount() > 1) {
@@ -89,14 +90,14 @@ public class ChatPane extends VBox {
         });
         image.setFitHeight(200);
         image.setFitWidth(200);
-        VBox vBox = new VBox(2, lbFrom, image);
-        vbMessages.getChildren().add(vBox);
-        vBox.setAlignment(Pos.BASELINE_RIGHT);
+        HBox hBox = new HBox(2, lbFrom, image);
+        vbMessages.getChildren().add(hBox);
+        hBox.setAlignment(Pos.BASELINE_RIGHT);
 
     }
 
     public void sendImage(String path, String user) {
-        Label lbFrom = new Label(user);
+        Label lbFrom = new Label(user + ": ");
         ImageView image = new ImageView(path);
         image.setOnMouseClicked(e -> {
             if (e.getClickCount() > 1) {
@@ -112,22 +113,22 @@ public class ChatPane extends VBox {
         });
         image.setFitHeight(200);
         image.setFitWidth(200);
-        VBox vBox = new VBox(2, lbFrom, image);
-        vbMessages.getChildren().add(vBox);
-        vBox.setAlignment(Pos.BASELINE_LEFT);
+        HBox hBox = new HBox(2, lbFrom, image);
+        vbMessages.getChildren().add(hBox);
+        hBox.setAlignment(Pos.BASELINE_LEFT);
     }
 
     public void sendText(String msg, String user) {
-        Label lbFrom = new Label(user);
+        Label lbFrom = new Label(user + ": ");
         Text text = new Text(msg);
         text.setWrappingWidth(200);
-        VBox vBox = new VBox(2, lbFrom, text);
-        vbMessages.getChildren().add(vBox);
-        vBox.setAlignment(Pos.BASELINE_LEFT);
+        HBox hBox = new HBox(2, lbFrom, text);
+        vbMessages.getChildren().add(hBox);
+        hBox.setAlignment(Pos.BASELINE_LEFT);
     }
 
     public void sendFile(String path, String user) {
-        Label lbFrom = new Label(user);
+        Label lbFrom = new Label(user + ": ");
         Text text = new Text(path);
         text.setFill(Color.BLUE);
         text.setOnMouseEntered(e -> {
@@ -147,9 +148,9 @@ public class ChatPane extends VBox {
             }
         });
         text.setWrappingWidth(200);
-        VBox vBox = new VBox(2, lbFrom, text);
-        vbMessages.getChildren().add(vBox);
-        vBox.setAlignment(Pos.BASELINE_LEFT);
+        HBox hBox = new HBox(2, lbFrom, text);
+        vbMessages.getChildren().add(hBox);
+        hBox.setAlignment(Pos.BASELINE_LEFT);
     }
 
 }

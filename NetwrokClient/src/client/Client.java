@@ -62,7 +62,7 @@ public class Client implements Runnable {
                     messages.put(user, new ArrayList<>());
                 }
                 for (MessageListner listner : messageListners) {
-                    listner.init();
+                    listner.init(users);
                 }
                 while (true) {
                     msg = reciveMessage();
@@ -237,7 +237,7 @@ public class Client implements Runnable {
 
     public static interface MessageListner {
 
-        public void init();
+        public void init(List<String> users);
 
         public void onChatMessage(String from, String message);
 
