@@ -25,11 +25,12 @@ public class UsersPane extends VBox {
     public UsersPane() {
         lbHeader = new Label("Users");
         lvUsers = new ListView<>();
+        lvUsers.setMaxWidth(150);
         btnAddToGroup = new Button("Add to Group");
         getChildren().addAll(lbHeader, lvUsers, btnAddToGroup);
-        setPadding(new Insets(10));
+        setPadding(new Insets(5));
         setAlignment(Pos.CENTER);
-        setSpacing(10);
+        setSpacing(2);
     }
 
     public Label getLbHeader() {

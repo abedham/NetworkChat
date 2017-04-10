@@ -34,6 +34,7 @@ public class Client implements Runnable {
     private List<MessageListner> messageListners = new ArrayList<>();
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
+    private List<String> users = new ArrayList<>();
 
     private Map<String, List<Message>> messages = new HashMap<>();
 
@@ -56,71 +57,50 @@ public class Client implements Runnable {
             sendMessage(msg);
             msg = reciveMessage();
             if (msg.getType() == Type.ALL_USERS) {
-                List<String> allUsers = (List<String>) msg.getData();
-                for (String user : allUsers) {
+                users = (List<String>) msg.getData();
+                for (String user : users) {
                     messages.put(user, new ArrayList<>());
+                }
+                for (MessageListner listner : messageListners) {
+                    listner.init();
                 }
                 while (true) {
                     msg = reciveMessage();
-                    String senderUser = msg.getUserName();
-                    switch (msg.getType()) {
-                        case Type.CHAT_MESSAGE:
-                            for (MessageListner listner : messageListners) {
-                                listner.onChatMessage(senderUser, (String) msg.getData());
-                            }
-                            break;
-                        case Type.IMAGE:
-                            for (MessageListner listner : messageListners) {
-                                byte[] bytes = (byte[]) msg.getData();
-                                listner.onImage(senderUser, bytes);
-                            }
-                            break;
-                        case Type.FILE:
-                            for (MessageListner listner : messageListners) {
-                                byte[] bytes = (byte[]) msg.getData();
-                                listner.onFile(senderUser, bytes);
-                            }
-                            break;
-                        case Type.CREATE_GROUP:
-                            for (MessageListner listner : messageListners) {
-                                listner.onCreateGroup(msg.getReciverName(), msg.getUserName(), (List<String>) msg.getData());
-                            }
-                            break;
-                        case Type.GROUP_MESSAGE:
-                            for (MessageListner listner : messageListners) {
-                                listner.onGroupMessage(msg.getReciverName(), msg.getUserName(), (String) msg.getData());
-                            }
-                            break;
-                        case Type.GROUP_IMAGE:
-                            for (MessageListner listner : messageListners) {
-                                byte[] bytes = (byte[]) msg.getData();
-                                listner.onGroupImage(msg.getReciverName(), msg.getUserName(), bytes);
-                            }
-                            break;
-                        case Type.GROUP_FILE:
-                            for (MessageListner listner : messageListners) {
-                                byte[] bytes = (byte[]) msg.getData();
-                                listner.onGroupFile(msg.getReciverName(), msg.getUserName(), bytes);
-                            }
-                            break;
-                        case Type.NEW_USER:
-                            for (MessageListner listner : messageListners) {
-                                listner.onNewUserLogin((String) msg.getData());
-                            }
-                            break;
-                        default:
-                            for (MessageListner listner : messageListners) {
-                                listner.onUnknownMessage(msg);
-                            }
+                    if (msg != null) {
+                        processMessage(msg);
+                    } else {
+                        break;
                     }
                 }
             } else if (msg.getType() == Type.FAILD_LOGIN) {
-                System.out.println("User exist, please use another username");
+                for (MessageListner listner : messageListners) {
+                    listner.onFaildLogin("User exist, please use another username");
+                }
             }
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public List<MessageListner> getMessageListners() {
+        return messageListners;
+    }
+
+    public List<String> getUsers() {
+        return users;
+    }
+
+    public Map<String, List<Message>> getMessages() {
+        return messages;
     }
 
     public void addMessageListner(MessageListner messageListner) {
@@ -136,7 +116,7 @@ public class Client implements Runnable {
         try {
             msg = (Message) ois.readObject();
         } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Server disconnected");
         }
         return msg;
     }
@@ -194,7 +174,70 @@ public class Client implements Runnable {
         return file;
     }
 
+    private void processMessage(Message msg) {
+        String senderUser = msg.getUserName();
+        switch (msg.getType()) {
+            case Type.CHAT_MESSAGE:
+                for (MessageListner listner : messageListners) {
+                    listner.onChatMessage(senderUser, (String) msg.getData());
+                }
+                break;
+            case Type.IMAGE:
+                for (MessageListner listner : messageListners) {
+                    byte[] bytes = (byte[]) msg.getData();
+                    listner.onImage(senderUser, bytes);
+                }
+                break;
+            case Type.FILE:
+                for (MessageListner listner : messageListners) {
+                    byte[] bytes = (byte[]) msg.getData();
+                    listner.onFile(senderUser, bytes);
+                }
+                break;
+            case Type.CREATE_GROUP:
+                for (MessageListner listner : messageListners) {
+                    listner.onCreateGroup(msg.getReciverName(), msg.getUserName(), (List<String>) msg.getData());
+                }
+                break;
+            case Type.GROUP_MESSAGE:
+                for (MessageListner listner : messageListners) {
+                    listner.onGroupMessage(msg.getReciverName(), msg.getUserName(), (String) msg.getData());
+                }
+                break;
+            case Type.GROUP_IMAGE:
+                for (MessageListner listner : messageListners) {
+                    byte[] bytes = (byte[]) msg.getData();
+                    listner.onGroupImage(msg.getReciverName(), msg.getUserName(), bytes);
+                }
+                break;
+            case Type.GROUP_FILE:
+                for (MessageListner listner : messageListners) {
+                    byte[] bytes = (byte[]) msg.getData();
+                    listner.onGroupFile(msg.getReciverName(), msg.getUserName(), bytes);
+                }
+                break;
+            case Type.NEW_USER:
+                users.add(msg.getUserName());
+                for (MessageListner listner : messageListners) {
+                    listner.onNewUserLogin((String) msg.getData());
+                }
+                break;
+            case Type.LOGOUT:
+                users.remove(msg.getUserName());
+                for (MessageListner listner : messageListners) {
+                    listner.onUserLogout(msg.getUserName());
+                }
+                break;
+            default:
+                for (MessageListner listner : messageListners) {
+                    listner.onUnknownMessage(msg);
+                }
+        }
+    }
+
     public static interface MessageListner {
+
+        public void init();
 
         public void onChatMessage(String from, String message);
 
@@ -211,6 +254,10 @@ public class Client implements Runnable {
         public void onGroupFile(String groupName, String from, byte[] bytes);
 
         public void onNewUserLogin(String userName);
+
+        public void onUserLogout(String userName);
+
+        public void onFaildLogin(String msg);
 
         public void onUnknownMessage(Message message);
 

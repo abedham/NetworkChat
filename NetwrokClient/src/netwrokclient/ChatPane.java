@@ -31,10 +31,10 @@ public class ChatPane extends VBox {
         lbHeader = new Label(header);
         vbMessages = new VBox(10);
         sp = new ScrollPane(vbMessages);
+        sp.setMinHeight(400);
         getChildren().addAll(lbHeader, sp);
-        setPadding(new Insets(10));
         setAlignment(Pos.CENTER);
-        setSpacing(10);
+        setSpacing(2);
     }
 
     public void reciveFile(String path, String from) {

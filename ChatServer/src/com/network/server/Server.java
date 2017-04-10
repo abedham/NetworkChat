@@ -96,7 +96,15 @@ class Client {
         System.out.println("User " + userName + " disconnected");
         msg.setType(Type.LOGOUT);
         msg.setUserName(userName);
-        Server.clients.remove(userName);
+        Client client = Server.clients.remove(userName);
+
+        Server.groups.values().forEach(e -> {
+            e.forEach(c -> {
+                if (c == client) {
+                    e.remove(c);
+                }
+            });
+        });
         Server.clients.values().forEach(c -> c.sendMessage(msg));
     }
 
@@ -150,7 +158,7 @@ class HandleClient implements Runnable {
                 valid = false;
                 msg = new Message();
                 msg.setData("User Name exist, choose another User Name");
-                msg.setType(Type.ERROR);
+                msg.setType(Type.FAILD_LOGIN);
                 client.sendMessage(msg);
             }
 
