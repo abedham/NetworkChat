@@ -152,12 +152,15 @@ public class Client implements Runnable {
         return bArray;
     }
 
-    public static File byteArrayToFile(byte[] bytes, String path) {
+    public static File byteArrayToFile(byte[] bytes, String path, String fileName) {
         FileOutputStream fileos = null;
         File file = new File(path);
-
+        if (!file.exists()) {
+            file.mkdirs();
+        }
         try {
-
+            file = new File(path + "/" + fileName);
+            file.createNewFile();
             fileos = new FileOutputStream(file);
             fileos.write(bytes);
         } catch (FileNotFoundException ex) {

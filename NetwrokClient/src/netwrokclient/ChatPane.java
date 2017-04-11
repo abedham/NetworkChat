@@ -8,6 +8,9 @@ package netwrokclient;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -73,49 +76,55 @@ public class ChatPane extends VBox {
         hBox.setAlignment(Pos.BASELINE_RIGHT);
     }
 
-    public void reciveImage(String path, String from) {
-        Label lbFrom = new Label(from + ": ");
-        ImageView image = new ImageView(path);
-        image.setOnMouseClicked(e -> {
-            if (e.getClickCount() > 1) {
-                if (Desktop.isDesktopSupported()) {
-                    try {
-                        File myFile = new File(path);
-                        Desktop.getDesktop().open(myFile);
-                    } catch (IOException ex) {
-                        // no application registered for PDFs
+    public void reciveImage(File file, String from)  {
+        try {
+            Label lbFrom = new Label(from + ": ");
+            ImageView image = new ImageView(file.toURI().toURL().toExternalForm());
+            image.setOnMouseClicked(e -> {
+                if (e.getClickCount() > 1) {
+                    if (Desktop.isDesktopSupported()) {
+                        try {
+                            Desktop.getDesktop().open(file);
+                        } catch (IOException ex) {
+                            // no application registered for PDFs
+                        }
                     }
                 }
-            }
-        });
-        image.setFitHeight(200);
-        image.setFitWidth(200);
-        HBox hBox = new HBox(2, lbFrom, image);
-        vbMessages.getChildren().add(hBox);
-        hBox.setAlignment(Pos.BASELINE_RIGHT);
+            });
+            image.setFitHeight(200);
+            image.setFitWidth(200);
+            HBox hBox = new HBox(2, lbFrom, image);
+            vbMessages.getChildren().add(hBox);
+            hBox.setAlignment(Pos.BASELINE_RIGHT);
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ChatPane.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
-    public void sendImage(String path, String user) {
-        Label lbFrom = new Label(user + ": ");
-        ImageView image = new ImageView(path);
-        image.setOnMouseClicked(e -> {
-            if (e.getClickCount() > 1) {
-                if (Desktop.isDesktopSupported()) {
-                    try {
-                        File myFile = new File(path);
-                        Desktop.getDesktop().open(myFile);
-                    } catch (IOException ex) {
-                        // no application registered for PDFs
+    public void sendImage(File file, String user) {
+        try {
+            Label lbFrom = new Label(user + ": ");
+            ImageView image = new ImageView(file.toURI().toURL().toExternalForm());
+            image.setOnMouseClicked(e -> {
+                if (e.getClickCount() > 1) {
+                    if (Desktop.isDesktopSupported()) {
+                        try {
+                            Desktop.getDesktop().open(file);
+                        } catch (IOException ex) {
+                            // no application registered for PDFs
+                        }
                     }
                 }
-            }
-        });
-        image.setFitHeight(200);
-        image.setFitWidth(200);
-        HBox hBox = new HBox(2, lbFrom, image);
-        vbMessages.getChildren().add(hBox);
-        hBox.setAlignment(Pos.BASELINE_LEFT);
+            });
+            image.setFitHeight(200);
+            image.setFitWidth(200);
+            HBox hBox = new HBox(2, lbFrom, image);
+            vbMessages.getChildren().add(hBox);
+            hBox.setAlignment(Pos.BASELINE_LEFT);
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ChatPane.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void sendText(String msg, String user) {
