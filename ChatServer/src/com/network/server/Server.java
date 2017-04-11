@@ -97,6 +97,7 @@ class Client {
         msg.setType(Type.LOGOUT);
         msg.setUserName(userName);
         Client client = Server.clients.remove(userName);
+        Server.users.remove(userName);
 
         Server.groups.values().forEach(e -> {
             e.forEach(c -> {

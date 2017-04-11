@@ -11,6 +11,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 /**
@@ -21,6 +23,8 @@ public class UsersPane extends VBox {
 
     private Label lbHeader;
     private ListView<String> lvUsers;
+    private TextField tfUsersGroup;
+    private TextField tfGroupName;
     private Button btnAddToGroup;
 
     public UsersPane() {
@@ -29,7 +33,11 @@ public class UsersPane extends VBox {
         lvUsers.setMaxWidth(150);
         lvUsers.setItems(FXCollections.observableArrayList());
         btnAddToGroup = new Button("Add to Group");
-        getChildren().addAll(lbHeader, lvUsers, btnAddToGroup);
+        tfUsersGroup = new TextField("");
+        tfGroupName = new TextField("");
+        tfUsersGroup.setPromptText("Type Users here");
+        tfGroupName.setPromptText("Type Group Name here");
+        getChildren().addAll(lbHeader, lvUsers, tfUsersGroup, tfGroupName, btnAddToGroup);
         setPadding(new Insets(5));
         setAlignment(Pos.CENTER);
         setSpacing(2);
@@ -47,4 +55,11 @@ public class UsersPane extends VBox {
         return btnAddToGroup;
     }
 
+    public TextField getTfUsersGroup() {
+        return tfUsersGroup;
+    }
+
+    public TextField getTfGroupName() {
+        return tfGroupName;
+    }
 }

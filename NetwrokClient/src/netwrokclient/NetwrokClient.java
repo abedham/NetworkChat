@@ -9,12 +9,13 @@ import client.Client;
 import client.Type;
 import com.abed.network.project.Message;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,13 +24,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
@@ -235,6 +232,7 @@ public class NetwrokClient extends Application {
         vbChat.setAlignment(Pos.CENTER);
 
         usersPane = new UsersPane();
+
         groupsPane = new GroupsPane();
 
         usersPane.getLvUsers().getSelectionModel().selectedItemProperty().addListener(
@@ -244,6 +242,17 @@ public class NetwrokClient extends Application {
                     isGroup = false;
                     messageTo = (String) newValue;
                 });
+        usersPane.getBtnAddToGroup().setOnAction(e -> {
+            Message message = new Message();
+            message.setData(Arrays.asList(usersPane.getTfUsersGroup().getText().split(" ")));
+            message.setReciverName(usersPane.getTfGroupName().getText());
+            message.setUserName(client.getUserName());
+            message.setType(Type.CREATE_GROUP);
+            client.sendMessage(message);
+            ChatPane chat = new ChatPane("Group " + message.getReciverName() + ": " + message.getData());
+            groupsChatPanes.put(message.getReciverName(), chat);
+            groupsPane.getLvGroups().getItems().add(message.getReciverName());
+        });
         groupsPane.getLvGroups().getSelectionModel().selectedItemProperty().addListener(
                 (ObservableValue<? extends Object> observable, Object oldValue, Object newValue) -> {
                     vbChat.getChildren().remove(0);
@@ -275,11 +284,13 @@ public class NetwrokClient extends Application {
             msg.setReciverName(messageTo);
             if (isGroup) {
                 msg.setType(Type.GROUP_MESSAGE);
+                groupsChatPanes.get(messageTo).sendText(message, client.getUserName());
             } else {
                 msg.setType(Type.CHAT_MESSAGE);
+                usersChatPanes.get(messageTo).sendText(message, client.getUserName());
             }
             client.sendMessage(msg);
-            usersChatPanes.get(messageTo).sendText(message, client.getUserName());
+
         }
     }
 
