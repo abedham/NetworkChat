@@ -5,7 +5,7 @@
  */
 package client;
 
-import com.abed.network.project.Message;
+import com.network.message.Message;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -160,6 +160,7 @@ public class Client implements Runnable {
         }
         try {
             file = new File(path + "/" + fileName);
+            System.out.println(file.getAbsolutePath());
             file.createNewFile();
             fileos = new FileOutputStream(file);
             fileos.write(bytes);
@@ -188,13 +189,13 @@ public class Client implements Runnable {
             case Type.IMAGE:
                 for (MessageListner listner : messageListners) {
                     byte[] bytes = (byte[]) msg.getData();
-                    listner.onImage(senderUser, bytes);
+                    listner.onImage(senderUser, msg.getFileName(), bytes);
                 }
                 break;
             case Type.FILE:
                 for (MessageListner listner : messageListners) {
                     byte[] bytes = (byte[]) msg.getData();
-                    listner.onFile(senderUser, bytes);
+                    listner.onFile(senderUser, msg.getFileName(), bytes);
                 }
                 break;
             case Type.CREATE_GROUP:
@@ -210,13 +211,13 @@ public class Client implements Runnable {
             case Type.GROUP_IMAGE:
                 for (MessageListner listner : messageListners) {
                     byte[] bytes = (byte[]) msg.getData();
-                    listner.onGroupImage(msg.getReciverName(), msg.getUserName(), bytes);
+                    listner.onGroupImage(msg.getReciverName(), msg.getFileName(), msg.getUserName(), bytes);
                 }
                 break;
             case Type.GROUP_FILE:
                 for (MessageListner listner : messageListners) {
                     byte[] bytes = (byte[]) msg.getData();
-                    listner.onGroupFile(msg.getReciverName(), msg.getUserName(), bytes);
+                    listner.onGroupFile(msg.getReciverName(), msg.getFileName(), msg.getUserName(), bytes);
                 }
                 break;
             case Type.NEW_USER:
@@ -244,17 +245,17 @@ public class Client implements Runnable {
 
         public void onChatMessage(String from, String message);
 
-        public void onImage(String from, byte[] bytes);
+        public void onImage(String from, String fileName, byte[] bytes);
 
-        public void onFile(String from, byte[] bytes);
+        public void onFile(String from, String fileName, byte[] bytes);
 
         public void onCreateGroup(String groupName, String from, List<String> users);
 
         public void onGroupMessage(String groupName, String from, String message);
 
-        public void onGroupImage(String groupName, String from, byte[] bytes);
+        public void onGroupImage(String groupName, String fileName, String from, byte[] bytes);
 
-        public void onGroupFile(String groupName, String from, byte[] bytes);
+        public void onGroupFile(String groupName, String fileName, String from, byte[] bytes);
 
         public void onNewUserLogin(String userName);
 

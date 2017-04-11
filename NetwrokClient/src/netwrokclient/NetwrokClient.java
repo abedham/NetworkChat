@@ -7,16 +7,12 @@ package netwrokclient;
 
 import client.Client;
 import client.Type;
-import com.abed.network.project.Message;
+import com.network.message.Message;
 import java.io.File;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -105,20 +101,20 @@ public class NetwrokClient extends Application {
                 }
 
                 @Override
-                public void onImage(String from, byte[] bytes) {
+                public void onImage(String from, String fileName, byte[] bytes) {
                     Platform.runLater(() -> {
                         ChatPane chat = usersChatPanes.get(from);
-                        File file = client.byteArrayToFile(bytes, "/" + from, "" + System.currentTimeMillis());
+                        File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + from, fileName);
                         chat.reciveImage(file, from);
 
                     });
                 }
 
                 @Override
-                public void onFile(String from, byte[] bytes) {
+                public void onFile(String from, String fileName, byte[] bytes) {
                     Platform.runLater(() -> {
                         ChatPane chat = usersChatPanes.get(from);
-                        File file = client.byteArrayToFile(bytes, "/" + from, "" + System.currentTimeMillis());
+                        File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + from, fileName);
                         chat.reciveFile(file.getPath(), from);
 
                     });
@@ -136,6 +132,7 @@ public class NetwrokClient extends Application {
 
                 @Override
                 public void onGroupMessage(String groupName, String from, String message) {
+                    System.out.println(groupName + " " + from + " " + message);
                     Platform.runLater(() -> {
                         ChatPane chat = groupsChatPanes.get(groupName);
                         chat.reciveText(message, from);
@@ -143,20 +140,26 @@ public class NetwrokClient extends Application {
                 }
 
                 @Override
-                public void onGroupImage(String groupName, String from, byte[] bytes) {
+                public void onGroupImage(String groupName, String fileName, String from, byte[] bytes) {
+                    System.out.println(groupName + " " + from + " " + bytes);
+
                     Platform.runLater(() -> {
-                        ChatPane chat = groupsChatPanes.get(from);
-                        File file = client.byteArrayToFile(bytes, "/" + groupName + "/" + from, System.currentTimeMillis() + "");
+                        ChatPane chat = groupsChatPanes.get(groupName);
+                        File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + groupName + "/" + client.getUserName() + "/" + from, fileName);
+                        if (chat == null) {
+                            System.out.println("Nulllll");
+                        }
                         chat.reciveImage(file, from);
                     });
                 }
 
                 @Override
-                public void onGroupFile(String groupName, String from, byte[] bytes) {
+                public void onGroupFile(String groupName, String fileName, String from, byte[] bytes) {
                     Platform.runLater(() -> {
-                        ChatPane chat = groupsChatPanes.get(from);
-                        File file = client.byteArrayToFile(bytes, "/" + groupName + "/" + from, "" + System.currentTimeMillis());
+                        ChatPane chat = groupsChatPanes.get(groupName);
+                        File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + groupName + "/" + client.getUserName() + "/" + from, fileName);
                         chat.reciveFile(file.getPath(), from);
+
                     });
                 }
 
@@ -218,6 +221,7 @@ public class NetwrokClient extends Application {
         lbHeader = new Label();
 
         btnSendFile = new Button("File");
+        btnSendFile.setOnAction(e -> sendFile());
         btnSendImage = new Button("Image");
         btnSendImage.setOnAction(e -> sendImage());
         btnSendText = new Button("Send");
@@ -251,6 +255,7 @@ public class NetwrokClient extends Application {
             Message message = new Message();
             message.setData(Arrays.asList(usersPane.getTfUsersGroup().getText().split(" ")));
             message.setReciverName(usersPane.getTfGroupName().getText());
+            System.out.println(message.getReciverName());
             message.setUserName(client.getUserName());
             message.setType(Type.CREATE_GROUP);
             client.sendMessage(message);
@@ -307,14 +312,16 @@ public class NetwrokClient extends Application {
                             "Select Image", "*.ping", "*.jpg", "*.gif", "*.jpeg"
                     ));
             File file = fileChooser.showOpenDialog(new Stage());
-            System.out.println(file.getName());
-            System.out.println(file.getAbsolutePath());
+
             //                usersChatPanes.get(messageTo).sendImage(file, client.getUserName());
             if (file != null) {
+                System.out.println(file.getName());
+                System.out.println(file.getAbsolutePath());
                 Message msg = new Message();
                 msg.setData(Client.readFileToByteArray(file));
                 msg.setUserName(client.getUserName());
                 msg.setReciverName(messageTo);
+                msg.setFileName(file.getName());
                 if (isGroup) {
                     msg.setType(Type.GROUP_IMAGE);
                     groupsChatPanes.get(messageTo).sendImage(file, client.getUserName());
@@ -328,36 +335,30 @@ public class NetwrokClient extends Application {
     }
 
     private void sendFile() {
-
-        Platform.runLater(() -> {
-            String filePath = "files/Project Ideas.pdf";
-            File f = new File(filePath);
-
-            Message msg = new Message();
-            msg.setType(Type.FILE);
-            msg.setData(f);
-            msg.setUserName(client.getUserName());
-            msg.setReciverName(messageTo);
-            client.sendMessage(msg);
-            usersChatPanes.get(messageTo).sendFile(filePath, client.getUserName());
-        });
-//        FileChooser fileChooser = new FileChooser();
-//        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Select File", "*.*"));
-//        File file = fileChooser.showOpenDialog(window);
-//        if (file != null) {
-//            String filePath = file.getAbsolutePath().replace('\\', '/');
-//            Message msg = new Message();
-//            msg.setData(filePath);
-//            msg.setUserName(client.getUserName());
-//            msg.setReciverName(messageTo);
-//            if (isGroup) {
-//                msg.setType(Type.GROUP_FILE);
-//            } else {
-//                msg.setType(Type.FILE);
-//            }
-//            client.sendMessage(msg);
-//            usersChatPanes.get(messageTo).sendImage(filePath, client.getUserName());
-//        }
+        if (messageTo != null) {
+            FileChooser fileChooser = new FileChooser();
+            File file = fileChooser.showOpenDialog(new Stage());
+            System.out.println(file.getName());
+            System.out.println(file.getAbsolutePath());
+            if (file != null) {
+                System.out.println(file.getName());
+                System.out.println(file.getAbsolutePath());
+                Message msg = new Message();
+                msg.setData(Client.readFileToByteArray(file));
+                msg.setUserName(client.getUserName());
+                msg.setFileName(file.getName());
+                msg.setReciverName(messageTo);
+                System.out.println(messageTo + ": to");
+                if (isGroup) {
+                    msg.setType(Type.GROUP_FILE);
+                    groupsChatPanes.get(messageTo).sendFile(file, client.getUserName());
+                } else {
+                    msg.setType(Type.FILE);
+                    usersChatPanes.get(messageTo).sendFile(file, client.getUserName());
+                }
+                client.sendMessage(msg);
+            }
+        }
     }
 
     /**

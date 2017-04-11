@@ -8,8 +8,8 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="NetwrokClient.jar" size="19747" download="eager" />
-    <jar href="lib\Message.jar" size="2148" download="eager" />
+    <jar href="NetwrokClient.jar" size="20000" download="eager" />
+    <jar href="lib\Message.jar" size="2208" download="eager" />
   </resources>
   <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="NetwrokClient" >
     <param name="requiredFXVersion" value="8.0+"/>

@@ -76,7 +76,7 @@ public class ChatPane extends VBox {
         hBox.setAlignment(Pos.BASELINE_RIGHT);
     }
 
-    public void reciveImage(File file, String from)  {
+    public void reciveImage(File file, String from) {
         try {
             Label lbFrom = new Label(from + ": ");
             ImageView image = new ImageView(file.toURI().toURL().toExternalForm());
@@ -136,9 +136,9 @@ public class ChatPane extends VBox {
         hBox.setAlignment(Pos.BASELINE_LEFT);
     }
 
-    public void sendFile(String path, String user) {
+    public void sendFile(File file, String user) {
         Label lbFrom = new Label(user + ": ");
-        Text text = new Text(path);
+        Text text = new Text(file.getAbsolutePath());
         text.setFill(Color.BLUE);
         text.setOnMouseEntered(e -> {
             text.setUnderline(true);
@@ -149,8 +149,7 @@ public class ChatPane extends VBox {
         text.setOnMouseClicked(e -> {
             if (Desktop.isDesktopSupported()) {
                 try {
-                    File myFile = new File(path);
-                    Desktop.getDesktop().open(myFile);
+                    Desktop.getDesktop().open(file);
                 } catch (IOException ex) {
                     // no application registered for PDFs
                 }

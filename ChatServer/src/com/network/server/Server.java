@@ -5,7 +5,7 @@ package com.network.server;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-import com.abed.network.project.Message;
+import com.network.message.Message;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
