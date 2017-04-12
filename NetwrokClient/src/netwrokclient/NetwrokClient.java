@@ -304,7 +304,7 @@ public class NetwrokClient extends Application {
     private void sendText() {
         String message = tfMessage.getText();
         
-        if (!message.isEmpty() || (messageTo != null)) {
+        if (!message.isEmpty() && (messageTo != null)) {
             
             Message msg = new Message();
             msg.setUserName(client.getUserName());
