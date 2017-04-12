@@ -34,13 +34,16 @@ public class UsersPane extends VBox {
         lvUsers.setItems(FXCollections.observableArrayList());
         btnAddToGroup = new Button("Add to Group");
         tfUsersGroup = new TextField("");
+        tfUsersGroup.setMaxWidth(150);
         tfGroupName = new TextField("");
+        tfGroupName.setMaxWidth(150);
         tfUsersGroup.setPromptText("Type Users here");
         tfGroupName.setPromptText("Type Group Name here");
         getChildren().addAll(lbHeader, lvUsers, tfUsersGroup, tfGroupName, btnAddToGroup);
         setPadding(new Insets(5));
         setAlignment(Pos.CENTER);
         setSpacing(2);
+        setStyle("-fx-background-color: rgba(149, 165, 166,1.0);");
     }
 
     public Label getLbHeader() {

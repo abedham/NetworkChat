@@ -56,164 +56,179 @@ public class NetwrokClient extends Application {
     private Map<String, ChatPane> groupsChatPanes = new HashMap<>();
 
     private Client client;
-    private Label lbError = new Label("Text");
-
+    private Label lbError = new Label("");
+    private Label lbWelcom = new Label("Login...");
     private boolean isGroup;
     private String messageTo;
 
     @Override
     public void start(Stage primaryStage) {
+        lbWelcom.setStyle("-fx-font-size: 25px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-text-fill: rgba(236, 240, 241,1.0);");
+        lbError.setStyle("-fx-font-size: 18px;"
+                + "-fx-font-weight: bold;"
+                + "-fx-text-fill: rgba(192, 57, 43,1.0);"
+                + "-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );");
 
         Label lbUserNmae = new Label("User Name: ");
         TextField tfUserName = new TextField();
+        tfUserName.setPromptText("User Name");
         HBox hBox = new HBox(10, lbUserNmae, tfUserName);
         hBox.setAlignment(Pos.CENTER);
 
         Button login = new Button("Login");
 
-        VBox vBox = new VBox(10, hBox, login, lbError);
+        VBox vBox = new VBox(10, lbWelcom, hBox, login, lbError);
         vBox.setAlignment(Pos.CENTER);
         vBox.setPadding(new Insets(10));
         login.setOnAction(e -> {
-            client = new Client(tfUserName.getText(), "localhost", 2222);
-            client.addMessageListner(new Client.MessageListner() {
+            if (!tfUserName.getText().isEmpty()) {
+                client = new Client(tfUserName.getText(), "localhost", 2222);
+                client.addMessageListner(new Client.MessageListner() {
 
-                @Override
-                public void init(List<String> users) {
-                    Platform.runLater(() -> {
-                        primaryStage.setScene(chatScene());
+                    @Override
+                    public void init(List<String> users) {
+                        Platform.runLater(() -> {
+                            primaryStage.setScene(chatScene());
+                            primaryStage.setTitle(client.getUserName());
+                            for (String userName : users) {
+                                ChatPane chat = new ChatPane(userName);
+                                usersChatPanes.put(userName, chat);
+                                usersPane.getLvUsers().getItems().add(userName);
+                            }
+                        });
+                    }
 
-                        for (String userName : users) {
+                    @Override
+                    public void onChatMessage(String from, String message) {
+                        Platform.runLater(() -> {
+                            ChatPane chat = usersChatPanes.get(from);
+                            chat.reciveText(message, from);
+
+                        });
+                    }
+
+                    @Override
+                    public void onImage(String from, String fileName, byte[] bytes) {
+                        Platform.runLater(() -> {
+                            ChatPane chat = usersChatPanes.get(from);
+                            File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + from, fileName);
+                            chat.reciveImage(file, from);
+
+                        });
+                    }
+
+                    @Override
+                    public void onFile(String from, String fileName, byte[] bytes) {
+                        Platform.runLater(() -> {
+                            ChatPane chat = usersChatPanes.get(from);
+                            File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + from, fileName);
+                            chat.reciveFile(file.getPath(), from);
+
+                        });
+                    }
+
+                    @Override
+                    public void onCreateGroup(String groupName, String from, List<String> users) {
+                        Platform.runLater(() -> {
+                            ChatPane chat = new ChatPane("Group " + groupName + ": " + users);
+                            groupsChatPanes.put(groupName, chat);
+                            groupsPane.getLvGroups().getItems().add(groupName);
+
+                        });
+                    }
+
+                    @Override
+                    public void onGroupMessage(String groupName, String from, String message) {
+                        System.out.println(groupName + " " + from + " " + message);
+                        Platform.runLater(() -> {
+                            ChatPane chat = groupsChatPanes.get(groupName);
+                            chat.reciveText(message, from);
+                        });
+                    }
+
+                    @Override
+                    public void onGroupImage(String groupName, String fileName, String from, byte[] bytes) {
+                        System.out.println(groupName + " " + from + " " + bytes);
+
+                        Platform.runLater(() -> {
+                            ChatPane chat = groupsChatPanes.get(groupName);
+                            File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + groupName + "/" + client.getUserName() + "/" + from, fileName);
+                            if (chat == null) {
+                                System.out.println("Nulllll");
+                            }
+                            chat.reciveImage(file, from);
+                        });
+                    }
+
+                    @Override
+                    public void onGroupFile(String groupName, String fileName, String from, byte[] bytes) {
+                        Platform.runLater(() -> {
+                            ChatPane chat = groupsChatPanes.get(groupName);
+                            File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + groupName + "/" + client.getUserName() + "/" + from, fileName);
+                            chat.reciveFile(file.getPath(), from);
+
+                        });
+                    }
+
+                    @Override
+                    public void onNewUserLogin(String userName) {
+                        Platform.runLater(() -> {
                             ChatPane chat = new ChatPane(userName);
                             usersChatPanes.put(userName, chat);
                             usersPane.getLvUsers().getItems().add(userName);
-                        }
-                    });
-                }
 
-                @Override
-                public void onChatMessage(String from, String message) {
-                    Platform.runLater(() -> {
-                        ChatPane chat = usersChatPanes.get(from);
-                        chat.reciveText(message, from);
+                        });
+                    }
 
-                    });
-                }
+                    @Override
+                    public void onUnknownMessage(Message message) {
+                        Platform.runLater(() -> {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Unknown Message");
+                            alert.setHeaderText("Look, you are recive unknown message");
+                            alert.setContentText("Message content: " + message.getData());
+                            alert.show();
 
-                @Override
-                public void onImage(String from, String fileName, byte[] bytes) {
-                    Platform.runLater(() -> {
-                        ChatPane chat = usersChatPanes.get(from);
-                        File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + from, fileName);
-                        chat.reciveImage(file, from);
+                        });
+                    }
 
-                    });
-                }
+                    @Override
+                    public void onUserLogout(String userName) {
+                        Platform.runLater(() -> {
+                            usersChatPanes.remove(userName);
+                            usersPane.getLvUsers().getItems().remove(userName);
 
-                @Override
-                public void onFile(String from, String fileName, byte[] bytes) {
-                    Platform.runLater(() -> {
-                        ChatPane chat = usersChatPanes.get(from);
-                        File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + from, fileName);
-                        chat.reciveFile(file.getPath(), from);
+                        });
+                    }
 
-                    });
-                }
+                    @Override
+                    public void onFaildLogin(String msg) {
+                        System.out.println("Text");
+                        Platform.runLater(() -> {
+                            lbError.setText("Error");
 
-                @Override
-                public void onCreateGroup(String groupName, String from, List<String> users) {
-                    Platform.runLater(() -> {
-                        ChatPane chat = new ChatPane("Group " + groupName + ": " + users);
-                        groupsChatPanes.put(groupName, chat);
-                        groupsPane.getLvGroups().getItems().add(groupName);
-
-                    });
-                }
-
-                @Override
-                public void onGroupMessage(String groupName, String from, String message) {
-                    System.out.println(groupName + " " + from + " " + message);
-                    Platform.runLater(() -> {
-                        ChatPane chat = groupsChatPanes.get(groupName);
-                        chat.reciveText(message, from);
-                    });
-                }
-
-                @Override
-                public void onGroupImage(String groupName, String fileName, String from, byte[] bytes) {
-                    System.out.println(groupName + " " + from + " " + bytes);
-
-                    Platform.runLater(() -> {
-                        ChatPane chat = groupsChatPanes.get(groupName);
-                        File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + groupName + "/" + client.getUserName() + "/" + from, fileName);
-                        if (chat == null) {
-                            System.out.println("Nulllll");
-                        }
-                        chat.reciveImage(file, from);
-                    });
-                }
-
-                @Override
-                public void onGroupFile(String groupName, String fileName, String from, byte[] bytes) {
-                    Platform.runLater(() -> {
-                        ChatPane chat = groupsChatPanes.get(groupName);
-                        File file = client.byteArrayToFile(bytes, "/" + client.getUserName() + "/" + groupName + "/" + client.getUserName() + "/" + from, fileName);
-                        chat.reciveFile(file.getPath(), from);
-
-                    });
-                }
-
-                @Override
-                public void onNewUserLogin(String userName) {
-                    Platform.runLater(() -> {
-                        ChatPane chat = new ChatPane(userName);
-                        usersChatPanes.put(userName, chat);
-                        usersPane.getLvUsers().getItems().add(userName);
-
-                    });
-                }
-
-                @Override
-                public void onUnknownMessage(Message message) {
-                    Platform.runLater(() -> {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Unknown Message");
-                        alert.setHeaderText("Look, you are recive unknown message");
-                        alert.setContentText("Message content: " + message.getData());
-                        alert.show();
-
-                    });
-                }
-
-                @Override
-                public void onUserLogout(String userName) {
-                    Platform.runLater(() -> {
-                        usersChatPanes.remove(userName);
-                        usersPane.getLvUsers().getItems().remove(userName);
-
-                    });
-                }
-
-                @Override
-                public void onFaildLogin(String msg) {
-                    System.out.println("Text");
-                    Platform.runLater(() -> {
-                        lbError.setText("Error");
-                    });
-                }
-            });
-            new Thread(client).start();
+                        });
+                    }
+                });
+                new Thread(client).start();
+            } else {
+                lbError.setText("Error");
+            }
         });
         Scene scene = new Scene(vBox, 300, 200);
+        scene.getStylesheets().add("/netwrokclient/style/login.css");
         primaryStage.setResizable(false);
-        primaryStage.setTitle("network !!");
+        primaryStage.setTitle("Login");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     private Scene chatScene() {
         initComponents();
-        Scene scene = new Scene(root, 600, 486);
+        Scene scene = new Scene(root, 650, 510);
+        scene.getStylesheets().add("/netwrokclient/style/chatHome.css");
         return scene;
     }
 
@@ -228,16 +243,18 @@ public class NetwrokClient extends Application {
         btnSendText.setOnAction(e -> sendText());
         tfMessage = new TextField();
         tfMessage.setMinWidth(290);
-
+        tfMessage.setPromptText("Type a Message ...");
         hbControl = new HBox();
         hbControl.getChildren().addAll(btnSendFile, btnSendImage, tfMessage, btnSendText);
         hbControl.setSpacing(1);
         hbControl.setAlignment(Pos.CENTER);
-
+        hbControl.setStyle("-fx-background-color: rgba(149, 165, 166,1.0);");
+        
         chatPane = new ChatPane("Chating View, please select User to view his chats");
         vbChat = new VBox();
         vbChat.getChildren().addAll(chatPane, hbControl);
-        vbChat.setSpacing(5);
+        //chatPane.setStyle("-fx-background-color: rgba(44, 62, 80,0.5);");
+        //vbChat.setSpacing(5);
         vbChat.setAlignment(Pos.CENTER);
 
         usersPane = new UsersPane();
@@ -272,11 +289,11 @@ public class NetwrokClient extends Application {
                 });
         vbList = new VBox();
         vbList.getChildren().addAll(usersPane, groupsPane);
-        vbList.setSpacing(5);
+        
         vbList.setAlignment(Pos.CENTER);
 
         root = new BorderPane();
-
+        root.setStyle("-fx-background-color:rgba(52, 73, 94,1.0);");
         root.setTop(lbHeader);
         root.setLeft(vbList);
         root.setCenter(vbChat);
@@ -286,8 +303,9 @@ public class NetwrokClient extends Application {
 
     private void sendText() {
         String message = tfMessage.getText();
-
-        if (!message.isEmpty()) {
+        
+        if (!message.isEmpty() || (messageTo != null)) {
+            
             Message msg = new Message();
             msg.setUserName(client.getUserName());
             msg.setData(tfMessage.getText());
@@ -300,7 +318,7 @@ public class NetwrokClient extends Application {
                 usersChatPanes.get(messageTo).sendText(message, client.getUserName());
             }
             client.sendMessage(msg);
-
+            tfMessage.setText("");
         }
     }
 

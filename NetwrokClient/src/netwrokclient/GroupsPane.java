@@ -31,6 +31,7 @@ public class GroupsPane extends VBox {
         setPadding(new Insets(5));
         setAlignment(Pos.CENTER);
         setSpacing(2);
+        setStyle("-fx-background-color: rgba(149, 165, 166,1.0);");
     }
 
     public Label getLbHeader() {
